@@ -47,7 +47,7 @@ export async function generateStrainImage(strainId: string, strainName: string):
     }
 
     // Step 4: Create public URL without using template literals
-    const storageUrl = "https://zvcqcgihydjscvrltkvz.supabase.co/storage/v1/object/public/strain-images/";
+    const storageUrl = "https://vcrgcnavuzisolnhnrdo.supabase.co/storage/v1/object/public/strain-images/";
     const publicUrl = storageUrl + fileName;
     
     console.log("Generated public URL:", publicUrl);
