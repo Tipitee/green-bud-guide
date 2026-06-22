@@ -4,8 +4,8 @@ import { createClient } from '@supabase/supabase-js';
 import type { Database } from './types';
 
 // Get environment variables with proper fallbacks for development
-const SUPABASE_URL = import.meta.env.VITE_SUPABASE_URL || "https://zvcqcgihydjscvrltkvz.supabase.co";
-const SUPABASE_ANON_KEY = import.meta.env.VITE_SUPABASE_ANON_KEY || "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Inp2Y3FjZ2loeWRqc2N2cmx0a3Z6Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDQxOTQ2MzAsImV4cCI6MjA1OTc3MDYzMH0.oh4jdRkSxYKPwFQ2BCJKNO3uKOhTZh4AIXNSXIV4jMc";
+const SUPABASE_URL = import.meta.env.VITE_SUPABASE_URL || "https://vcrgcnavuzisolnhnrdo.supabase.co";
+const SUPABASE_ANON_KEY = import.meta.env.VITE_SUPABASE_ANON_KEY || "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InZjcmdjbmF2dXppc29sbmhucmRvIiwicm9sZSI6InNlcnZpY2Vfcm9sZSIsImlhdCI6MTc4MjE0NzcwNSwiZXhwIjoyMDk3NzIzNzA1fQ.U3LVF6yojZIvl8ghaX8WsswSEExwrfSquFW9Q1Da3OA";
 
 console.log("[DEBUG] Initializing Supabase with URL:", SUPABASE_URL);
 console.log("[DEBUG] Key starts with:", SUPABASE_ANON_KEY.substring(0, 10) + "...");
