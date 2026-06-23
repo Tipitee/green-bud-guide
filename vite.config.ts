@@ -19,7 +19,9 @@ export default defineConfig(({ mode }) => ({
   },
   build: {
     outDir: 'dist',
+    target: 'esnext',
     sourcemap: false,
     minify: false,
+    cssMinify: false,
   },
 }));
