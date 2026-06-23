@@ -16,18 +16,18 @@ interface CityMapping {
 
 // Enhanced mapping of German cities with their relationships
 const GERMAN_CITIES: Record<string, CityMapping> = {
-  "köln": {
-    aliases: ["cologne", "koeln", "köln"],
-    neighbors: ["brühl", "leverkusen", "bergisch gladbach", "troisdorf", "dormagen", "pulheim", "hürth", "frechen"],
+  "kÃ¶ln": {
+    aliases: ["cologne", "koeln", "kÃ¶ln"],
+    neighbors: ["brÃ¼hl", "leverkusen", "bergisch gladbach", "troisdorf", "dormagen", "pulheim", "hÃ¼rth", "frechen"],
     radius: 30,
     postalCodes: ["50667", "50668", "50670", "50672", "50674", "50676", "50677", "50678", "50679",
                  "50733", "50735", "50737", "50739", "50823", "50825", "50827", "50829", "50858", 
                  "50859", "50931", "50933", "50935", "50937", "50939", "50968", "50969", "50996", "50997", "50999"],
     coordinates: [6.9578, 50.9422]
   },
-  "brühl": {
-    aliases: ["bruehl", "brühl"],
-    neighbors: ["köln", "hürth", "wesseling", "bornheim"],
+  "brÃ¼hl": {
+    aliases: ["bruehl", "brÃ¼hl"],
+    neighbors: ["kÃ¶ln", "hÃ¼rth", "wesseling", "bornheim"],
     radius: 15,
     postalCodes: ["50321"],
     coordinates: [6.9061, 50.8258]
@@ -66,9 +66,9 @@ const GERMAN_CITIES: Record<string, CityMapping> = {
     postalCodes: ["14467", "14469", "14471", "14473", "14478", "14480"],
     coordinates: [13.0645, 52.3906]
   },
-  "münchen": {
-    aliases: ["munich", "muenchen", "münchen"],
-    neighbors: ["fürstenfeldbruck", "dachau", "freising", "erding", "karlsfeld", "garching", "unterhaching", "grünwald"],
+  "mÃ¼nchen": {
+    aliases: ["munich", "muenchen", "mÃ¼nchen"],
+    neighbors: ["fÃ¼rstenfeldbruck", "dachau", "freising", "erding", "karlsfeld", "garching", "unterhaching", "grÃ¼nwald"],
     radius: 35,
     postalCodes: ["80331", "80333", "80335", "80336", "80337", "80339", "80469", "80538", "80539",
                  "80634", "80636", "80637", "80638", "80639", "80686", "80687", "80689", "80796",
@@ -83,14 +83,14 @@ const GERMAN_CITIES: Record<string, CityMapping> = {
   },
   "karlsfeld": {
     aliases: ["karlsfeld"],
-    neighbors: ["münchen", "dachau"],
+    neighbors: ["mÃ¼nchen", "dachau"],
     radius: 15,
     postalCodes: ["85757"],
     coordinates: [11.4758, 48.2203]
   },
   "dachau": {
     aliases: ["dachau"],
-    neighbors: ["münchen", "karlsfeld"],
+    neighbors: ["mÃ¼nchen", "karlsfeld"],
     radius: 20,
     postalCodes: ["85221", "85221", "85226"],
     coordinates: [11.4342, 48.2632]
@@ -121,8 +121,8 @@ const GERMAN_CITIES: Record<string, CityMapping> = {
                  "22765", "22767", "22769", "22844", "22846", "22848", "22850", "22851", "22869"],
     coordinates: [9.9937, 53.5511]
   },
-  "düsseldorf": {
-    aliases: ["duesseldorf", "düsseldorf"],
+  "dÃ¼sseldorf": {
+    aliases: ["duesseldorf", "dÃ¼sseldorf"],
     neighbors: ["neuss", "meerbusch", "ratingen", "hilden", "erkrath", "monheim"],
     radius: 25,
     postalCodes: ["40210", "40211", "40213", "40215", "40217", "40219", "40221", "40223", "40225",
@@ -133,7 +133,7 @@ const GERMAN_CITIES: Record<string, CityMapping> = {
   },
   "bonn": {
     aliases: ["bonn"],
-    neighbors: ["sankt augustin", "troisdorf", "königswinter", "bornheim", "siegburg", "alfter"],
+    neighbors: ["sankt augustin", "troisdorf", "kÃ¶nigswinter", "bornheim", "siegburg", "alfter"],
     radius: 20,
     postalCodes: ["53111", "53113", "53115", "53117", "53119", "53121", "53123", "53125", "53127",
                  "53129", "53173", "53175", "53177", "53179", "53225", "53227", "53229"],
@@ -141,14 +141,14 @@ const GERMAN_CITIES: Record<string, CityMapping> = {
   },
   "leverkusen": {
     aliases: ["leverkusen"],
-    neighbors: ["köln", "monheim", "langenfeld", "bergisch gladbach"],
+    neighbors: ["kÃ¶ln", "monheim", "langenfeld", "bergisch gladbach"],
     radius: 15,
     postalCodes: ["51373", "51375", "51377", "51379", "51381"],
     coordinates: [7.0220, 51.0459]
   },
   "bergisch gladbach": {
     aliases: ["bergisch gladbach", "gl", "bergisch-gladbach"],
-    neighbors: ["köln", "overath", "odenthal", "leverkusen"],
+    neighbors: ["kÃ¶ln", "overath", "odenthal", "leverkusen"],
     radius: 15,
     postalCodes: ["51429", "51465", "51469"],
     coordinates: [7.1360, 50.9925]
@@ -377,14 +377,7 @@ export function useClubsSearch() {
         }
       }
       
-      // If we still haven't found any cities, show a helpful error
-      if (!mainCity && !isPostalCode && searchCities.length === 0) {
-        setSearchResults([]);
-        setHasSearched(true);
-        setError(`No matching locations found for "${location}". Please try another city or postal code.`);
-        setLoading(false);
-        return;
-      }
+      // If no city matched, fall through to generic ilike search below
       
       // Build the query
       let query = supabase.from('clubs').select('*');
