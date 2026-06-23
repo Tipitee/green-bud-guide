@@ -6,8 +6,8 @@ import { Label } from "@/components/ui/label";
 import { Switch } from "@/components/ui/switch";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Button } from "@/components/ui/button";
-import { useNavigate } from "react-router-dom";
-import { X } from "lucide-react";
+import { useNavigate, Link } from "react-router-dom";
+import { X, Mail } from "lucide-react";
 import { Capacitor } from "@capacitor/core";
 const Settings: React.FC = () => {
   const {
@@ -119,6 +119,12 @@ const Settings: React.FC = () => {
             <Button variant="outline" className="w-full md:w-auto bg-primary hover:bg-primary/90 text-primary-foreground border-transparent rounded-md">
               {t('settings.savePreferences')}
             </Button>
+          </div>
+          <div className="mt-6 text-center border-t border-border pt-6">
+            <Link to="/contact" className="inline-flex items-center gap-2 text-sm text-muted-foreground hover:text-foreground transition-colors">
+              <Mail size={14} aria-hidden="true" />
+              Nous contacter
+            </Link>
           </div>
         </div>
       </div>
