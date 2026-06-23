@@ -28,8 +28,8 @@ const NewsFilters: React.FC<NewsFiltersProps> = ({ activeTab, setActiveTab }) =>
           variant={activeTab === category.id ? "default" : "outline"}
           className={`rounded-md px-4 py-2 text-sm ${
             activeTab === category.id
-              ? 'bg-teal text-white dark:bg-teal'
-              : 'bg-white dark:bg-navy-400 text-navy-dark dark:text-white border-navy-DEFAULT/30 dark:border-navy-light/30'
+              ? 'bg-primary text-primary-foreground'
+              : 'bg-card text-foreground border-border'
           }`}
           onClick={() => setActiveTab(category.id)}
         >
