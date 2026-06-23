@@ -19,19 +19,18 @@ export default defineConfig(({ mode }) => ({
   },
   build: {
     outDir: 'dist',
-    target: 'esnext',
     sourcemap: false,
     minify: 'terser',
-    terserOptions: {
-      compress: false,
-      mangle: false,
-      format: { comments: false },
-    },
-    cssMinify: false,
     rollupOptions: {
       external: ['maplibre-gl'],
       output: {
-        globals: { 'maplibre-gl': 'maplibregl' },
+        globals: {
+          'maplibre-gl': 'maplibregl',
+        },
+        manualChunks: {
+          vendor: ['react', 'react-dom', 'react-router-dom'],
+          ui: ['@/components/ui'],
+        },
       },
     },
   },
