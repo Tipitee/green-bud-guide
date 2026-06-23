@@ -137,7 +137,7 @@ const StrainReviews: React.FC<StrainReviewsProps> = ({
   const renderStars = (rating: number, interactive = false) => {
     return Array.from({
       length: 5
-    }, (_, i) => <Star key={i} className={`${i < rating ? 'text-yellow-400 fill-yellow-400' : 'text-gray-400'} ${interactive ? 'cursor-pointer' : ''} h-4 w-4`} onClick={interactive ? () => handleStarClick(i + 1) : undefined} onMouseEnter={interactive ? () => setUserRating(i + 1) : undefined} onMouseLeave={interactive ? () => userRating === 0 && setUserRating(0) : undefined} />);
+    }, (_, i) => <Star key={i} className={`${i < rating ? 'text-yellow-400 fill-yellow-400' : 'text-muted-foreground'} ${interactive ? 'cursor-pointer' : ''} h-4 w-4`} onClick={interactive ? () => handleStarClick(i + 1) : undefined} onMouseEnter={interactive ? () => setUserRating(i + 1) : undefined} onMouseLeave={interactive ? () => userRating === 0 && setUserRating(0) : undefined} />);
   };
   const formatDate = (dateString: string) => {
     const date = new Date(dateString);
