@@ -45,7 +45,7 @@ toast({ title: 'Message envoyé !', description: 'Nous vous répondrons dans les
 throw new Error('Formspree error');
 }
 } catch {
-toast({ title: 'Erreur', description: 'Impossible d'envoyer le message. Réessayez plus tard.', variant: 'destructive' });
+toast({ title: 'Erreur', description: "Impossible d'envoyer le message. Réessayez plus tard.", variant: 'destructive' });
 } finally {
 setSending(false);
 }
