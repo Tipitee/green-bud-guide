@@ -7,7 +7,7 @@ import { useTranslation } from "react-i18next";
 import { Search, MapPin, Loader2 } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { useClubsSearch } from "@/hooks/use-clubs-search";
-import { testSupabaseConnection } from "@/integrations/supabase/client";
+import { testSupabaseConnection, supabase } from "@/integrations/supabase/client";
 import ClubMap from "@/components/club/ClubMap";
 import { ClubResult } from "@/types/club";
 import { toast } from "@/hooks/use-toast";
@@ -15,171 +15,204 @@ import { Capacitor } from "@capacitor/core";
 const SEARCH_RESULTS_STORAGE_KEY = "club-search-results";
 const SEARCH_QUERY_STORAGE_KEY = "club-search-query";
 const ClubMapPage: React.FC = () => {
-  const {
-    t
-  } = useTranslation();
-  const location = useLocation();
-  const navigate = useNavigate();
-  const {
-    searchQuery,
-    setSearchQuery,
-    searchResults,
-    setSearchResults,
-    loading,
-    error,
-    hasSearched,
-    setHasSearched,
-    searchClubs
-  } = useClubsSearch();
-  const [isNative, setIsNative] = useState(false);
-  const [isIOS, setIsIOS] = useState(false);
+const {
+t
+} = useTranslation();
+const location = useLocation();
+const navigate = useNavigate();
+const {
+searchQuery,
+setSearchQuery,
+searchResults,
+setSearchResults,
+loading,
+error,
+hasSearched,
+setHasSearched,
+searchClubs
+} = useClubsSearch();
+const [isNative, setIsNative] = useState(false);
+const [isIOS, setIsIOS] = useState(false);
+const [allClubsData, setAllClubsData] = useState<ClubResult[]>([]);
 
-  // Set platform detection on component mount
-  useEffect(() => {
-    setIsNative(Capacitor.isNativePlatform());
-    setIsIOS(Capacitor.getPlatform() === 'ios');
-  }, []);
+// Set platform detection on component mount
+useEffect(() => {
+setIsNative(Capacitor.isNativePlatform());
+setIsIOS(Capacitor.getPlatform() === 'ios');
+}, []);
 
-  // Load saved search results from session storage
-  useEffect(() => {
-    const storedQuery = sessionStorage.getItem(SEARCH_QUERY_STORAGE_KEY);
-    const storedResults = sessionStorage.getItem(SEARCH_RESULTS_STORAGE_KEY);
-    if (storedQuery) {
-      setSearchQuery(storedQuery);
-      if (storedResults) {
-        try {
-          const parsedResults = JSON.parse(storedResults) as ClubResult[];
-          setSearchResults(parsedResults);
-          setHasSearched(true);
-        } catch (err) {
-          console.error("Error parsing stored search results:", err);
-          sessionStorage.removeItem(SEARCH_RESULTS_STORAGE_KEY);
-        }
-      }
-    }
-  }, []);
+// Load all clubs on mount so map shows pins by default
+useEffect(() => {
+const loadAllClubs = async () => {
+const { data, error } = await supabase
+.from('clubs')
+.select('*')
+.limit(500);
+if (!error && data) {
+const clubs: ClubResult[] = data.map((c: any) => ({
+id: c.name || String(Math.random()),
+name: c.name || "Unnamed Club",
+address: c.address || null,
+city: c.city || null,
+postal_code: c.postal_code || null,
+status: (c.status as "verified" | "pending" | "unverified") || "unverified",
+latitude: c.latitude || null,
+longitude: c.longitude || null,
+membership_status: Boolean(c.membership_status),
+district: c.district || null,
+website: c.website || null,
+contact_email: c.contact_email || null,
+contact_phone: c.contact_phone || null,
+description: c.description || null,
+additional_info: c.additional_info || null,
+distance: undefined,
+}));
+setAllClubsData(clubs);
+}
+};
+loadAllClubs();
+}, []);
 
-  // Save search results to session storage
-  useEffect(() => {
-    if (hasSearched && searchResults.length > 0) {
-      sessionStorage.setItem(SEARCH_RESULTS_STORAGE_KEY, JSON.stringify(searchResults));
-      sessionStorage.setItem(SEARCH_QUERY_STORAGE_KEY, searchQuery);
-    }
-  }, [searchResults, searchQuery, hasSearched]);
+// Load saved search results from session storage
+useEffect(() => {
+const storedQuery = sessionStorage.getItem(SEARCH_QUERY_STORAGE_KEY);
+const storedResults = sessionStorage.getItem(SEARCH_RESULTS_STORAGE_KEY);
+if (storedQuery) {
+setSearchQuery(storedQuery);
+if (storedResults) {
+try {
+const parsedResults = JSON.parse(storedResults) as ClubResult[];
+setSearchResults(parsedResults);
+setHasSearched(true);
+} catch (err) {
+console.error("Error parsing stored search results:", err);
+sessionStorage.removeItem(SEARCH_RESULTS_STORAGE_KEY);
+}
+}
+}
+}, []);
 
-  // Test Supabase connection
-  React.useEffect(() => {
-    const checkConnection = async () => {
-      const connected = await testSupabaseConnection();
-      console.log("[DEBUG] Supabase connection test:", connected);
-    };
-    checkConnection();
-  }, []);
-  const handleSearch = () => {
-    if (!searchQuery.trim()) {
-      toast({
-        title: "Search Error",
-        description: "Please enter a location or postal code to search",
-        variant: "destructive"
-      });
-      return;
-    }
-    const isPostalCode = /^\d{1,5}$/.test(searchQuery.trim());
-    if (isPostalCode) {
-      console.log("[DEBUG] Searching with postal code:", searchQuery);
-    } else {
-      console.log("[DEBUG] Searching with city name:", searchQuery);
-    }
-    searchClubs(searchQuery);
-  };
-  const handleClubClick = (clubId: string) => {
-    navigate(`/clubs/${encodeURIComponent(clubId)}`, {
-      state: {
-        fromSearch: true
-      }
-    });
-  };
+// Save search results to session storage
+useEffect(() => {
+if (hasSearched && searchResults.length > 0) {
+sessionStorage.setItem(SEARCH_RESULTS_STORAGE_KEY, JSON.stringify(searchResults));
+sessionStorage.setItem(SEARCH_QUERY_STORAGE_KEY, searchQuery);
+}
+}, [searchResults, searchQuery, hasSearched]);
 
-  // Calculate proper iOS padding
-  const getIosPadding = () => {
-    if (isIOS && isNative) {
-      return 'pt-[calc(env(safe-area-inset-top)+16px)]';
-    }
-    return 'pt-16';
-  };
-  return <div className="bg-background min-h-dvh pb-20 py-[8px]">
-      <div className={`container mx-auto px-4 ${getIosPadding()}`}>
-        <h1 className="text-2xl md:text-3xl font-bold mb-4 text-foreground">
-          {t('clubs.findLocalClub')}
-        </h1>
-        
-        <div className={`w-full ${isNative ? 'h-[35vh]' : 'h-[30vh]'} rounded-lg overflow-hidden shadow-lg border border-border bg-card mb-4 relative`}>
-          <ClubMap allClubs={searchResults.length > 0 ? searchResults : undefined} />
-        </div>
-        
-        <Card className="mt-4 border-border shadow-md rounded-lg">
-          <CardContent className="p-4 rounded-lg">
-            <h2 className="text-lg font-semibold mb-3 text-card-foreground">
-              {t('clubs.searchNearby')}
-            </h2>
-            
-            <div className="flex flex-col md:flex-row gap-3 mb-4">
-              <div className="flex-grow relative">
-                <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground" size={18} />
-                <Input placeholder={t('clubs.enterCityPostal')} className="pl-10 border-border shadow-sm" value={searchQuery} onChange={e => setSearchQuery(e.target.value)} onKeyDown={e => e.key === 'Enter' && handleSearch()} />
-              </div>
-              <Button onClick={handleSearch} className="bg-primary text-white hover:bg-primary/90 shadow-sm" disabled={loading}>
-                {loading ? <Loader2 size={18} className="animate-spin mr-2" /> : null}
-                {t('clubs.searchButton')}
-              </Button>
-            </div>
-            
-            {error && <div className="p-4 mb-4 bg-destructive/10 border border-destructive/30 rounded-md text-destructive">
-                {error}
-              </div>}
-            
-            {hasSearched && <div className="mt-3">
-                <h3 className="text-lg font-medium mb-2 text-card-foreground">
-                  {searchQuery && `${t('clubs.resultsFor')} "${searchQuery}"`}
-                </h3>
-                
-                {searchResults.length === 0 ? <div className="text-center py-6 text-muted-foreground">
-                    {t('clubs.noClubsArea')}
-                  </div> : <div className="space-y-3 mt-3">
-                    {searchResults.map(club => <div key={club.id} onClick={() => handleClubClick(club.name)} className="p-3 rounded-lg border border-border shadow-md transition-colors cursor-pointer bg-card">
-                        <div className="flex items-start gap-3">
-                          <div className="mt-1">
-                            <MapPin size={18} className={club.status === "verified" ? "text-primary" : club.status === "pending" ? "text-amber-500" : "text-muted-foreground"} />
-                          </div>
-                          <div className="flex-grow">
-                            <div className="flex items-center gap-2">
-                              <h4 className="font-semibold text-foreground">{club.name}</h4>
-                              {!club.membership_status && <Badge variant="outline" className="bg-amber-500/10 text-amber-700 dark:text-amber-300 border-amber-300">
-                                  {t('clubs.waitlist')}
-                                </Badge>}
-                            </div>
-                            <p className="text-sm text-foreground">{club.address}</p>
-                            <p className="text-sm text-foreground">
-                              {club.city && `${club.city}`}
-                              {club.postal_code && `, ${club.postal_code}`}
-                            </p>
-                            <div className="text-xs text-muted-foreground mt-1">
-                              {club.distance && `${club.distance.toFixed(1)} ${t('clubs.awayKm')}`}
-                            </div>
-                          </div>
-                          <Button variant="outline" size="sm" className="border-border text-foreground hover:bg-accent/20" onClick={e => {
-                    e.stopPropagation();
-                    handleClubClick(club.name);
-                  }}>
-                            {t('clubs.details')}
-                          </Button>
-                        </div>
-                      </div>)}
-                  </div>}
-              </div>}
-          </CardContent>
-        </Card>
-      </div>
-    </div>;
+// Test Supabase connection
+React.useEffect(() => {
+const checkConnection = async () => {
+const connected = await testSupabaseConnection();
+console.log("[DEBUG] Supabase connection test:", connected);
+};
+checkConnection();
+}, []);
+const handleSearch = () => {
+if (!searchQuery.trim()) {
+toast({
+title: "Search Error",
+description: "Please enter a location or postal code to search",
+variant: "destructive"
+});
+return;
+}
+const isPostalCode = /^\d{1,5}$/.test(searchQuery.trim());
+if (isPostalCode) {
+console.log("[DEBUG] Searching with postal code:", searchQuery);
+} else {
+console.log("[DEBUG] Searching with city name:", searchQuery);
+}
+searchClubs(searchQuery);
+};
+const handleClubClick = (clubId: string) => {
+navigate(`/clubs/${encodeURIComponent(clubId)}`, {
+state: {
+fromSearch: true
+}
+});
+};
+
+// Calculate proper iOS padding
+const getIosPadding = () => {
+if (isIOS && isNative) {
+return 'pt-[calc(env(safe-area-inset-top)+16px)]';
+}
+return 'pt-16';
+};
+return <div className="bg-background min-h-dvh pb-20 py-[8px]">
+<div className={`container mx-auto px-4 ${getIosPadding()}`}>
+<h1 className="text-2xl md:text-3xl font-bold mb-4 text-foreground">
+{t('clubs.findLocalClub')}
+</h1>
+
+<div className={`w-full ${isNative ? 'h-[35vh]' : 'h-[30vh]'} rounded-lg overflow-hidden shadow-lg border border-border bg-card mb-4 relative`}>
+<ClubMap allClubs={searchResults.length > 0 ? searchResults : allClubsData} />
+</div>
+
+<Card className="mt-4 border-border shadow-md rounded-lg">
+<CardContent className="p-4 rounded-lg">
+<h2 className="text-lg font-semibold mb-3 text-card-foreground">
+{t('clubs.searchNearby')}
+</h2>
+
+<div className="flex flex-col md:flex-row gap-3 mb-4">
+<div className="flex-grow relative">
+<Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground" size={18} />
+<Input placeholder={t('clubs.enterCityPostal')} className="pl-10 border-border shadow-sm" value={searchQuery} onChange={e => setSearchQuery(e.target.value)} onKeyDown={e => e.key === 'Enter' && handleSearch()} />
+</div>
+<Button onClick={handleSearch} className="bg-primary text-white hover:bg-primary/90 shadow-sm" disabled={loading}>
+{loading ? <Loader2 size={18} className="animate-spin mr-2" /> : null}
+{t('clubs.searchButton')}
+</Button>
+</div>
+
+{error && <div className="p-4 mb-4 bg-destructive/10 border border-destructive/30 rounded-md text-destructive">
+{error}
+</div>}
+
+{hasSearched && <div className="mt-3">
+<h3 className="text-lg font-medium mb-2 text-card-foreground">
+{searchQuery && `${t('clubs.resultsFor')} "${searchQuery}"`}
+</h3>
+
+{searchResults.length === 0 ? <div className="text-center py-6 text-muted-foreground">
+{t('clubs.noClubsArea')}
+</div> : <div className="space-y-3 mt-3">
+{searchResults.map(club => <div key={club.id} onClick={() => handleClubClick(club.name)} className="p-3 rounded-lg border border-border shadow-md transition-colors cursor-pointer bg-card">
+<div className="flex items-start gap-3">
+<div className="mt-1">
+<MapPin size={18} className={club.status === "verified" ? "text-primary" : club.status === "pending" ? "text-amber-500" : "text-muted-foreground"} />
+</div>
+<div className="flex-grow">
+<div className="flex items-center gap-2">
+<h4 className="font-semibold text-foreground">{club.name}</h4>
+{!club.membership_status && <Badge variant="outline" className="bg-amber-500/10 text-amber-700 dark:text-amber-300 border-amber-300">
+{t('clubs.waitlist')}
+</Badge>}
+</div>
+<p className="text-sm text-foreground">{club.address}</p>
+<p className="text-sm text-foreground">
+{club.city && `${club.city}`}
+{club.postal_code && `, ${club.postal_code}`}
+</p>
+<div className="text-xs text-muted-foreground mt-1">
+{club.distance && `${club.distance.toFixed(1)} ${t('clubs.awayKm')}`}
+</div>
+</div>
+<Button variant="outline" size="sm" className="border-border text-foreground hover:bg-accent/20" onClick={e => {
+e.stopPropagation();
+handleClubClick(club.name);
+}}>
+{t('clubs.details')}
+</Button>
+</div>
+</div>)}
+</div>}
+</div>}
+</CardContent>
+</Card>
+</div>
+</div>;
 };
 export default ClubMapPage;
