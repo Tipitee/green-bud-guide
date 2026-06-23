@@ -1,4 +1,3 @@
-
 import React, { useState } from "react";
 import { useParams, Link } from "react-router-dom";
 import { useQuery } from "@tanstack/react-query";
@@ -14,10 +13,7 @@ const StrainDetail: React.FC = () => {
   const { id } = useParams();
   const { t } = useTranslation();
   const [isGeneratingImage, setIsGeneratingImage] = useState(false);
-  
-  // Detect theme for styling
-  const isDarkMode = document.documentElement.classList.contains('dark');
-  
+
   const { data: strain, error, isLoading } = useQuery({
     queryKey: ['strain', id],
     queryFn: () => fetchStrainById(id || '')
@@ -25,221 +21,176 @@ const StrainDetail: React.FC = () => {
 
   const handleGenerateImage = async () => {
     if (!strain || !id) return;
-    
     setIsGeneratingImage(true);
-    try {
-      const imageUrl = await generateStrainImage(id, strain.name);
-      // The query cache will be invalidated and refetched when the image URL is updated
-      if (imageUrl) {
-        // Invalidate the query to refresh the data with the new image
-        // We don't need to set the strain data directly since it will be refetched
-      }
-    } catch (error) {
-      console.error("Error generating image:", error);
-    } finally {
-      setIsGeneratingImage(false);
-    }
+    try { await generateStrainImage(id, strain.name); }
+    catch (err) { console.error("Error generating image:", err); }
+    finally { setIsGeneratingImage(false); }
   };
 
-  const getTypeIcon = (type: string) => {
+  const getTypeIcon = (type: string, large = false) => {
+    const cls = large ? "h-16 w-16 text-white/90" : "h-5 w-5";
     switch (type) {
-      case "Indica":
-        return <Cannabis className="h-5 w-5 text-purple-500" />;
-      case "Sativa":
-        return <Sun className="h-5 w-5 text-amber-500" />;
-      case "Hybrid":
-      default:
-        return <CircleDashed className="h-5 w-5 text-emerald-500" />;
+      case "Indica": return <Cannabis className={cls + " text-purple-300"} aria-hidden="true" />;
+      case "Sativa": return <Sun className={cls + " text-amber-300"} aria-hidden="true" />;
+      default: return <CircleDashed className={cls + " text-emerald-300"} aria-hidden="true" />;
     }
   };
 
-  const getTypeColor = (type: string) => {
+  const getTypeGradient = (type: string) => {
     switch (type) {
-      case "Indica":
-        return "bg-strain-indica";
-      case "Sativa":
-        return "bg-strain-sativa";
-      case "Hybrid":
-      default:
-        return "bg-strain-hybrid";
+      case "Indica": return "from-purple-900 via-purple-700 to-purple-500";
+      case "Sativa": return "from-amber-800 via-amber-600 to-yellow-500";
+      default: return "from-teal-900 via-teal-700 to-emerald-500";
     }
   };
 
-  // Get background color based on theme
-  const getBackgroundColor = () => isDarkMode ? "bg-background" : "bg-oldLace-500";
-  const getTextColor = () => isDarkMode ? "text-foreground" : "text-gray-800";
-  const getCardBgColor = () => isDarkMode ? "bg-card" : "bg-white";
-  const getCardBorderColor = () => isDarkMode ? "border-primary/20" : "border-primary/10";
-  const getMutedTextColor = () => isDarkMode ? "text-muted-foreground" : "text-gray-500";
+  const getTypeBadge = (type: string) => {
+    switch (type) {
+      case "Indica": return "bg-purple-700 text-white";
+      case "Sativa": return "bg-amber-600 text-white";
+      default: return "bg-teal-600 text-white";
+    }
+  };
 
   if (isLoading) {
-    return <div className={`flex items-center justify-center h-screen ${getBackgroundColor()} ${getTextColor()}`}>
-        <div className="h-8 w-8 border-t-2 border-primary rounded-full animate-spin"></div>
-      </div>;
+    return (
+      <div className="flex items-center justify-center h-screen bg-background" aria-live="polite" aria-label={t('common.loading') || 'Chargement...'}>
+        <div className="h-8 w-8 border-t-2 border-primary rounded-full animate-spin" role="status" />
+      </div>
+    );
   }
 
   if (error || !strain) {
-    return <div className={`container px-4 py-6 mb-20 ${getBackgroundColor()} ${getTextColor()}`}>
+    return (
+      <div className="container px-4 py-6 mb-20 bg-background text-foreground">
         <h1 className="text-2xl font-bold mb-4">{t('strains.strainNotFound')}</h1>
-        <p className={getMutedTextColor()}>{t('strains.errorLoadingStrain')}</p>
-        <p className={`${getMutedTextColor()} mb-6`}>{t('strains.requestedStrainNotFound')}</p>
+        <p className="text-muted-foreground mb-2">{t('strains.errorLoadingStrain')}</p>
+        <p className="text-muted-foreground mb-6">{t('strains.requestedStrainNotFound')}</p>
         <Link to="/strains">
           <Button variant="outline">
-            <ChevronLeft className="mr-2 h-4 w-4" />
+            <ChevronLeft className="mr-2 h-4 w-4" aria-hidden="true" />
             {t('strains.backToAllStrains')}
           </Button>
         </Link>
-      </div>;
+      </div>
+    );
   }
 
-  // Get valid effects, filtering out "Unknown" values
-  const displayEffects = strain.effects.filter(effect => effect && effect.effect && effect.effect !== "Unknown").sort((a, b) => b.intensity - a.intensity).slice(0, 3); // Only show top 3 effects
-
-  // Check if we need to generate an image
-  const needsImageGeneration = !strain.img_url || strain.img_url.trim() === '';
-  const showImageGenerationButton = needsImageGeneration && !isGeneratingImage;
+  const displayEffects = strain.effects
+    .filter(e => e && e.effect && e.effect !== "Unknown")
+    .sort((a, b) => b.intensity - a.intensity)
+    .slice(0, 3);
 
   return (
-    <div className={`min-h-screen ${getBackgroundColor()} ${getTextColor()} pb-20`}>
-      <main className="container px-4 py-8 max-w-5xl mx-auto mb-20">
+    <div className="min-h-screen bg-background text-foreground pb-20">
+      <main className="container px-4 py-8 max-w-5xl mx-auto mb-20" role="main">
+        {/* Back button */}
         <div className="mb-6">
-          <Link to="/strains">
-            <Button variant="outline" size="sm" className="flex items-center bg-navy-800 hover:bg-navy-700">
-              <ChevronLeft className="mr-1 h-4 w-4" />
+          <Link to="/strains" aria-label={t('strains.backToAllStrains')}>
+            <Button variant="outline" size="sm" className="flex items-center gap-1 border-border text-foreground hover:bg-accent/20">
+              <ChevronLeft className="h-4 w-4" aria-hidden="true" />
               {t('strains.backToAllStrains')}
             </Button>
           </Link>
         </div>
 
-        {/* Main Strain Info Card */}
-        <div className={`${getCardBgColor()} rounded-xl overflow-hidden ${getCardBorderColor()} border shadow-lg mb-6`}>
+        {/* Main card */}
+        <section className="bg-card rounded-xl overflow-hidden border border-border shadow-lg mb-6" aria-label={strain.name}>
           <div className="flex flex-col md:flex-row">
-            {/* Strain Image */}
-            <div className="md:w-1/3 h-56 md:h-auto">
-              <div className="h-full relative">
-                {isGeneratingImage ? (
-                  <div className="w-full h-full flex flex-col items-center justify-center bg-muted">
-                    <Loader2 className="h-12 w-12 animate-spin mb-2 text-primary" />
-                    <p className="text-sm text-muted-foreground">Generating image...</p>
-                  </div>
-                ) : strain.img_url ? (
-                  <img 
-                    src={strain.img_url} 
-                    alt={strain.name} 
-                    className="w-full h-full object-cover" 
-                    onError={(e) => {
-                      e.currentTarget.onerror = null;
-                      const container = e.currentTarget.parentElement;
-                      if (container) {
-                        container.innerHTML = `
-                          <div class="w-full h-full flex items-center justify-center bg-muted">
-                            <div class="opacity-80">
-                              ${getTypeIcon(strain.type).props.outerHTML || ''}
-                            </div>
-                          </div>
-                        `;
-                      }
-                    }}
-                  />
-                ) : (
-                  <div className="w-full h-full flex items-center justify-center bg-muted relative">
-                    <div className="opacity-80">
-                      {getTypeIcon(strain.type)}
-                    </div>
-                    
-                    {showImageGenerationButton && (
-                      <Button 
-                        onClick={handleGenerateImage} 
-                        variant="secondary"
-                        className="absolute bottom-4 left-1/2 transform -translate-x-1/2"
-                        size="sm"
-                      >
-                        Generate Image
-                      </Button>
-                    )}
-                  </div>
-                )}
+            {/* Image / gradient placeholder */}
+            <div className="md:w-1/3 h-56 md:h-auto relative">
+              {/* Gradient background always visible */}
+              <div className={"absolute inset-0 bg-gradient-to-br " + getTypeGradient(strain.type) + " flex items-center justify-center"}>
+                {getTypeIcon(strain.type, true)}
               </div>
+              {/* Real image overlaid */}
+              {isGeneratingImage ? (
+                <div className="absolute inset-0 flex flex-col items-center justify-center bg-black/40">
+                  <Loader2 className="h-12 w-12 animate-spin mb-2 text-white" aria-hidden="true" />
+                  <p className="text-sm text-white" aria-live="polite">Generating image...</p>
+                </div>
+              ) : strain.img_url ? (
+                <img src={strain.img_url} alt={strain.name}
+                  className="absolute inset-0 w-full h-full object-cover"
+                  onError={e => { (e.currentTarget as HTMLImageElement).style.display = 'none'; }} />
+              ) : (
+                <Button onClick={handleGenerateImage} variant="secondary" size="sm"
+                  className="absolute bottom-4 left-1/2 -translate-x-1/2 text-xs bg-white/20 hover:bg-white/30 text-white border border-white/30">
+                  Generate Image
+                </Button>
+              )}
             </div>
-            
-            {/* Strain Details */}
+
+            {/* Strain details */}
             <div className="md:w-2/3 p-6">
-              <div className="flex justify-between items-start mb-4">
-                <h1 className="text-2xl font-bold">{strain.name}</h1>
-                <Badge className={`${getTypeColor(strain.type)} px-3 py-1 text-sm`}>
-                  <div className="flex items-center gap-1">
-                    {getTypeIcon(strain.type)}
-                    <span className="font-normal">{strain.type}</span>
-                  </div>
+              <div className="flex justify-between items-start mb-4 gap-3">
+                <h1 className="text-2xl font-bold text-card-foreground">{strain.name}</h1>
+                <Badge className={"shrink-0 flex items-center gap-1 px-3 py-1 text-sm " + getTypeBadge(strain.type)}>
+                  {getTypeIcon(strain.type)}
+                  <span>{strain.type}</span>
                 </Badge>
               </div>
-              
-              {/* THC and Terpene Info - IMPROVED SMALLER SIZE */}
-              <div className="grid grid-cols-2 gap-2 mb-4">
-                <div className={`bg-muted rounded-md inline-flex items-center p-2`}>
-                  <div className="px-2">
-                    <span className="text-xs text-muted-foreground">THC Level</span>
-                    <p className="text-xs font-semibold">
-                      {strain.thc_level ? `${strain.thc_level}%` : t('strains.unknown')}
-                    </p>
-                  </div>
+
+              <div className="grid grid-cols-2 gap-3 mb-4">
+                <div className="bg-muted rounded-lg p-3">
+                  <span className="text-xs text-muted-foreground block mb-1">THC Level</span>
+                  <p className="text-sm font-semibold text-card-foreground">
+                    {strain.thc_level ? strain.thc_level + "%" : t('strains.unknown')}
+                  </p>
                 </div>
-                <div className={`bg-muted rounded-md inline-flex items-center p-2`}>
-                  <div className="px-2">
-                    <span className="text-xs text-muted-foreground">Dominant Terpene</span>
-                    <p className="text-xs font-semibold">
-                      {strain.most_common_terpene || t('strains.unknown')}
-                    </p>
-                  </div>
+                <div className="bg-muted rounded-lg p-3">
+                  <span className="text-xs text-muted-foreground block mb-1">Dominant Terpene</span>
+                  <p className="text-sm font-semibold text-card-foreground">
+                    {strain.most_common_terpene || t('strains.unknown')}
+                  </p>
                 </div>
               </div>
             </div>
           </div>
-        </div>
-
-        {/* Effects Section with improved design - SLIMMER HEIGHT */}
-        <div className="mb-6">
-          <h2 className="text-xl font-bold mb-4 flex items-center">
-            <Leaf className="mr-2 h-5 w-5 text-primary" />
+        </section>
+        {/* Effects section */}
+        <section className="mb-6" aria-label="Effects">
+          <h2 className="text-xl font-bold mb-4 flex items-center gap-2 text-foreground">
+            <Leaf className="h-5 w-5 text-primary" aria-hidden="true" />
             Effects
           </h2>
-          
-          <div className={`${getCardBgColor()} rounded-xl ${getCardBorderColor()} border p-4 md:p-6`}>
+          <div className="bg-card rounded-xl border border-border p-4 md:p-6">
             <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-              {displayEffects && displayEffects.length > 0 ? displayEffects.map((effect, index) => <div key={`effect-${index}`} className="effect-block bg-muted/50 border-muted my-0 mx-0 px-[13px] rounded-xl">
-                    <h3 className="text-sm font-semibold mb-1 py-0 px-0 mx-0 my-[3px]">{effect.effect}</h3>
-                    <div className="w-full bg-muted rounded-full h-1.5 mb-1"> {/* Reduced height */}
-                      <div className={`h-1.5 rounded-full ${index === 0 ? 'bg-primary' : index === 1 ? 'bg-strain-indica' : 'bg-strain-sativa'}`} style={{
-                  width: `${effect.intensity}%`
-                }}></div>
-                    </div>
-                    <p className="text-right text-xs font-medium text-muted-foreground mt-0.5"> {/* Reduced margin */}
-                      {`${effect.intensity}%`}
-                    </p>
-                  </div>) :
-            // If no effect data available, show placeholders
-            Array.from({
-              length: 3
-            }).map((_, index) => <div key={`effect-placeholder-${index}`} className="effect-block bg-muted/50 border-muted">
-                    <h3 className="text-sm font-semibold mb-1">{t('strains.noData')}</h3>
-                    <div className="w-full bg-muted rounded-full h-1.5 mb-1"> {/* Reduced height */}
-                      <div className="bg-muted/50 h-1.5 rounded-full w-[50%]"></div>
-                    </div>
-                    <p className="text-right text-xs font-medium text-muted-foreground mt-0.5">{t('strains.unknown')}</p> {/* Reduced margin */}
-                  </div>)}
+              {displayEffects.length > 0 ? displayEffects.map((effect, index) => (
+                <div key={"effect-" + index} className="bg-muted/50 rounded-xl px-4 py-3">
+                  <h3 className="text-sm font-semibold mb-2 text-card-foreground">{effect.effect}</h3>
+                  <div className="w-full bg-muted rounded-full h-1.5 mb-1">
+                    <div className={"h-1.5 rounded-full " + (index === 0 ? 'bg-primary' : index === 1 ? 'bg-strain-indica' : 'bg-strain-sativa')}
+                      style={{ width: effect.intensity + "%" }}
+                      role="progressbar" aria-valuenow={effect.intensity} aria-valuemin={0} aria-valuemax={100}
+                      aria-label={effect.effect + ": " + effect.intensity + "%"} />
+                  </div>
+                  <p className="text-right text-xs font-medium text-muted-foreground">{effect.intensity}%</p>
+                </div>
+              )) : Array.from({ length: 3 }).map((_, i) => (
+                <div key={"ph-" + i} className="bg-muted/50 rounded-xl px-4 py-3">
+                  <h3 className="text-sm font-semibold mb-2 text-muted-foreground">{t('strains.noData')}</h3>
+                  <div className="w-full bg-muted rounded-full h-1.5 mb-1">
+                    <div className="bg-muted/50 h-1.5 rounded-full w-1/2" />
+                  </div>
+                  <p className="text-right text-xs text-muted-foreground">{t('strains.unknown')}</p>
+                </div>
+              ))}
             </div>
           </div>
-        </div>
+        </section>
 
-        {/* Description Section */}
-        <div className="mb-6">
-          <h2 className="text-xl font-bold mb-4">Description</h2>
-          <div className={`${getCardBgColor()} rounded-xl ${getCardBorderColor()} border p-4 md:p-6`}>
-            <p className="text-foreground whitespace-pre-line">{strain.description || t('strains.noDescriptionAvailable')}</p>
+        {/* Description */}
+        <section className="mb-6" aria-label="Description">
+          <h2 className="text-xl font-bold mb-4 text-foreground">Description</h2>
+          <div className="bg-card rounded-xl border border-border p-4 md:p-6">
+            <p className="text-card-foreground whitespace-pre-line leading-relaxed">
+              {strain.description || t('strains.noDescriptionAvailable')}
+            </p>
           </div>
-        </div>
+        </section>
 
-        {/* Reviews Section */}
+        {/* Reviews */}
         <div className="mb-20">
           <StrainReviews strainId={id || '1'} strainName={strain.name} />
         </div>
