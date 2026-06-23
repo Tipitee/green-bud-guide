@@ -1,4 +1,3 @@
-
 import React from "react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -7,14 +6,10 @@ import { Calendar, ArrowRight, Globe } from "lucide-react";
 import { useTranslation } from "react-i18next";
 import { NewsItem } from "@/types/news";
 
-interface NewsCardProps {
-  item: NewsItem;
-  isGerman: boolean;
-}
+interface NewsCardProps { item: NewsItem; isGerman: boolean; }
 
 const NewsCard: React.FC<NewsCardProps> = ({ item, isGerman }) => {
   const { t } = useTranslation();
-  
   const getCategoryLabel = (category: string) => {
     switch (category) {
       case "federal": return t('news.federal');
@@ -25,7 +20,6 @@ const NewsCard: React.FC<NewsCardProps> = ({ item, isGerman }) => {
       default: return category;
     }
   };
-  
   const getCategoryColor = (category: string): "default" | "secondary" | "destructive" | "outline" | "success" | "warning" | "error" => {
     switch (category) {
       case "federal": return "default";
@@ -36,51 +30,36 @@ const NewsCard: React.FC<NewsCardProps> = ({ item, isGerman }) => {
       default: return "default";
     }
   };
-
   return (
-    <Card className="border-navy-DEFAULT dark:border-navy-light bg-white dark:bg-navy-light shadow-sm hover:shadow-md transition-shadow">
+    <Card className="border-border bg-card shadow-sm hover:shadow-md transition-shadow">
       <CardContent className="p-5">
         <div className="flex flex-col md:flex-row md:items-center justify-between mb-3">
           <div className="flex items-center mb-2 md:mb-0">
-            <Calendar size={16} className="mr-1.5 text-gray-500 dark:text-gray-400" />
-            <span className="text-sm text-gray-600 dark:text-gray-300">
-              {t('news.postedOn')} {item.date}
-            </span>
+            <Calendar size={16} className="mr-1.5 text-muted-foreground" aria-hidden="true" />
+            <span className="text-sm text-muted-foreground">{t('news.postedOn')} {item.date}</span>
           </div>
-          
           <Badge className="self-start md:self-auto" variant={getCategoryColor(item.category)}>
             {getCategoryLabel(item.category)}
           </Badge>
         </div>
-        
-        <h3 className="text-xl font-semibold mb-3 text-navy-dark dark:text-white">
+        <h3 className="text-xl font-semibold mb-3 text-card-foreground">
           {isGerman ? item.title : item.titleEn}
         </h3>
-        
-        <p className="text-navy-dark dark:text-gray-200 mb-4">
+        <p className="text-card-foreground/80 mb-4">
           {isGerman ? item.summary : item.summaryEn}
         </p>
-        
-        <div className="flex flex-col md:flex-row md:items-center justify-between pt-3 border-t border-navy-DEFAULT/20 dark:border-navy-light/20">
+        <div className="flex flex-col md:flex-row md:items-center justify-between pt-3 border-t border-border">
           <div className="mb-3 md:mb-0">
-            <Button variant="link" className="px-0 py-0 h-auto text-teal dark:text-teal-light flex items-center">
-              {t('news.readMore')}
-              <ArrowRight size={16} className="ml-1" />
+            <Button variant="link" className="px-0 py-0 h-auto text-primary flex items-center">
+              {t('news.readMore')} <ArrowRight size={16} className="ml-1" aria-hidden="true" />
             </Button>
           </div>
-          
           <div className="flex flex-col md:flex-row md:items-center gap-2 md:gap-4 text-sm">
-            <span className="text-gray-600 dark:text-gray-400">
-              {t('news.source')}: {item.source}
-            </span>
-            
-            <a 
-              href={item.sourceUrl} 
-              target="_blank" 
-              rel="noopener noreferrer"
-              className="flex items-center text-teal dark:text-teal-light hover:underline"
-            >
-              <Globe size={14} className="mr-1" />
+            <span className="text-muted-foreground">{t('news.source')}: {item.source}</span>
+            <a href={item.sourceUrl} target="_blank" rel="noopener noreferrer"
+              className="flex items-center text-primary hover:underline"
+              aria-label={t('news.visitSource') + " - " + item.source}>
+              <Globe size={14} className="mr-1" aria-hidden="true" />
               {t('news.visitSource')}
             </a>
           </div>
@@ -89,5 +68,4 @@ const NewsCard: React.FC<NewsCardProps> = ({ item, isGerman }) => {
     </Card>
   );
 };
-
 export default NewsCard;
