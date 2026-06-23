@@ -25,7 +25,7 @@ const ClubStrains: React.FC<ClubStrainsProps> = ({ strains }) => {
   if (!strains || strains.length === 0) {
     return (
       <div className="text-center py-8">
-        <Loader2 className="h-8 w-8 mx-auto mb-4 text-muted-foreground animate-spin" />
+        <Loader2 className="h-8 w-8 mx-auto mb-4 text-muted-foreground animate-spin" aria-hidden="true" />
         <p className="text-muted-foreground">Loading strain information...</p>
       </div>
     );
@@ -83,17 +83,18 @@ const ClubStrains: React.FC<ClubStrainsProps> = ({ strains }) => {
                     variant="outline" 
                     size="sm" 
                     onClick={() => handleGenerateImage(strain)}
+                    aria-label={`Generate image for ${strain.name}`}
                     disabled={generatingImageFor === strain.id}
                     className="flex items-center gap-1 text-xs"
                   >
                     {generatingImageFor === strain.id ? (
                       <>
-                        <Loader2 className="h-3 w-3 animate-spin" />
+                        <Loader2 className="h-3 w-3 animate-spin" aria-hidden="true" />
                         <span>Generating...</span>
                       </>
                     ) : (
                       <>
-                        <Plus className="h-3 w-3" />
+                        <Plus className="h-3 w-3" aria-hidden="true" />
                         <span>Generate Image</span>
                       </>
                     )}
