@@ -25,6 +25,7 @@ const Settings = lazy(() => import("./pages/Settings"));
 const Profile = lazy(() => import("./pages/Profile"));
 const CannabisGuide = lazy(() => import("./pages/CannabisGuide"));
 const AdminTools = lazy(() => import("./pages/AdminTools"));
+const Contact = lazy(() => import("./pages/Contact"));
 const BottomNav = lazy(() => import("./components/BottomNav"));
 const Navbar = lazy(() => import("./components/Navbar"));
 
@@ -131,6 +132,7 @@ const App = () => {
                           <AdminTools />
                         </Suspense>} />
                       <Route path="/admin" element={<Navigate to="/admin-tools" replace />} />
+                <Route path="/contact" element={<Suspense fallback={<PageLoading />}><Contact /></Suspense>} />
                       <Route path="*" element={<Suspense fallback={<PageLoading />}>
                           <NotFound />
                         </Suspense>} />
