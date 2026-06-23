@@ -36,8 +36,8 @@ const Settings: React.FC = () => {
           <h1 className="text-2xl md:text-3xl font-bold text-foreground">
             {t('settings.settings')}
           </h1>
-          <Button variant="outline" size="icon" onClick={goBack} className="rounded-full hover:bg-accent/20" aria-label={t('common.close')}>
-            <X className="h-4 w-4 text-foreground" />
+          <Button variant="outline" size="icon" onClick={goBack} aria-label="Go back" className="rounded-full hover:bg-accent/20" aria-label={t('common.close')}>
+            <X className="h-4 w-4 text-foreground" aria-hidden="true" />
           </Button>
         </div>
         
