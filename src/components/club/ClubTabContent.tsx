@@ -9,60 +9,57 @@ import ClubEvents from "./ClubEvents";
 import { mockClubDetails } from "./mockData";
 import { ClubResult } from "@/types/club";
 interface ClubTabContentProps {
-  tab: string;
-  club: ClubResult;
+tab: string;
+club: ClubResult;
 }
 const ClubTabContent: React.FC<ClubTabContentProps> = ({
-  tab,
-  club
+tab,
+club
 }) => {
-  // Ensure mockClubDetails has all the required properties before rendering
-  const details = mockClubDetails || {
-    openingHours: [],
-    memberCount: 0,
-    foundingDate: '',
-    specialties: [],
-    facilities: [],
-    membershipFee: '',
-    membershipWaitTime: '',
-    strains: [],
-    events: []
-  };
-  if (tab === "info") {
-    return <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-        {/* Left column - About & Details */}
-        <div className="lg:col-span-2 space-y-6">
-          <div className="rounded-lg p-5 shadow-sm border border-border bg-ashGray-500">
-            <ClubAbout club={club} specialties={details.specialties} facilities={details.facilities} />
-          </div>
-          
-          <div className="rounded-lg p-5 shadow-sm border border-border bg-ashGray-500">
-            <ClubMembership membershipFee={details.membershipFee} waitTime={details.membershipWaitTime} />
-          </div>
-          
-          <div className="rounded-lg p-5 shadow-sm border border-border bg-ashGray-500">
-            <ClubAdditionalInfo club={club} />
-          </div>
-        </div>
-        
-        {/* Right column - Contact & Hours */}
-        <div className="space-y-6">
-          <div className="rounded-lg p-5 shadow-sm border border-border bg-ashGray-500">
-            <ClubContactInfo club={club} />
-          </div>
-          
-          <div className="rounded-lg p-5 shadow-sm border border-border bg-ashGray-500">
-            <ClubOpeningHours hours={details.openingHours} />
-          </div>
-        </div>
-      </div>;
-  }
-  if (tab === "strains") {
-    return <ClubStrains strains={details.strains} />;
-  }
-  if (tab === "events") {
-    return <ClubEvents events={details.events} />;
-  }
-  return null;
+const details = mockClubDetails || {
+openingHours: [],
+memberCount: 0,
+foundingDate: '',
+specialties: [],
+facilities: [],
+membershipFee: '',
+membershipWaitTime: '',
+strains: [],
+events: []
+};
+if (tab === "info") {
+return <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+<div className="lg:col-span-2 space-y-6">
+<div className="rounded-lg p-5 shadow-sm border border-border bg-card">
+<ClubAbout club={club} specialties={details.specialties} facilities={details.facilities} />
+</div>
+
+<div className="rounded-lg p-5 shadow-sm border border-border bg-card">
+<ClubMembership membershipFee={details.membershipFee} waitTime={details.membershipWaitTime} />
+</div>
+
+<div className="rounded-lg p-5 shadow-sm border border-border bg-card">
+<ClubAdditionalInfo club={club} />
+</div>
+</div>
+
+<div className="space-y-6">
+<div className="rounded-lg p-5 shadow-sm border border-border bg-card">
+<ClubContactInfo club={club} />
+</div>
+
+<div className="rounded-lg p-5 shadow-sm border border-border bg-card">
+<ClubOpeningHours hours={details.openingHours} />
+</div>
+</div>
+</div>;
+}
+if (tab === "strains") {
+return <ClubStrains strains={details.strains} />;
+}
+if (tab === "events") {
+return <ClubEvents events={details.events} />;
+}
+return null;
 };
 export default ClubTabContent;
