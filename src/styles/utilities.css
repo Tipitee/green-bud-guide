@@ -1,8 +1,6 @@
-
 @tailwind utilities;
 
 @layer utilities {
-  /* iOS status bar and navigation utilities */
   .ios-status-bar {
     height: env(safe-area-inset-top);
     background-color: hsl(var(--background));
@@ -11,7 +9,7 @@
     position: relative;
     z-index: 100;
   }
-  
+
   .ios-bottom-safe {
     height: env(safe-area-inset-bottom);
     background-color: hsl(var(--background));
@@ -21,7 +19,6 @@
     z-index: 100;
   }
 
-  /* Navigation container styles */
   .app-container {
     min-height: 100dvh;
     display: flex;
@@ -54,34 +51,23 @@
     background-color: hsl(var(--background));
   }
 
-  /* Enhanced iOS safe area utilities */
-  .ios-safe-top {
-    padding-top: env(safe-area-inset-top);
-  }
-  
-  .ios-safe-bottom {
-    padding-bottom: env(safe-area-inset-bottom);
-  }
-  
-  .min-h-screen-safe {
-    min-height: calc(100vh - env(safe-area-inset-top) - env(safe-area-inset-bottom));
-  }
-  
-  .h-screen-safe {
-    height: calc(100vh - env(safe-area-inset-top) - env(safe-area-inset-bottom));
-  }
-  
-  /* General utilities for consistent page layouts */
+  .ios-safe-top { padding-top: env(safe-area-inset-top); }
+  .ios-safe-bottom { padding-bottom: env(safe-area-inset-bottom); }
+  .min-h-screen-safe { min-height: calc(100vh - env(safe-area-inset-top) - env(safe-area-inset-bottom)); }
+  .h-screen-safe { height: calc(100vh - env(safe-area-inset-top) - env(safe-area-inset-bottom)); }
+
+  /* Consistent page layout — used across all pages */
   .page-container {
     @apply min-h-dvh bg-background pb-20;
-    padding-top: calc(16px + env(safe-area-inset-top));
-    padding-bottom: calc(20px + env(safe-area-inset-bottom));
+    padding-top: calc(64px + env(safe-area-inset-top, 0px));
+    padding-bottom: calc(80px + env(safe-area-inset-bottom, 0px));
   }
-  
+
+  /* No rounded-lg on full-page content areas */
   .page-content {
-    @apply container px-4 py-6 max-w-7xl mx-auto rounded-lg;
+    @apply container px-4 py-6 max-w-7xl mx-auto;
   }
-  
+
   .card-rounded {
     @apply rounded-lg border border-border bg-card shadow-sm;
   }
