@@ -21,14 +21,17 @@ export default defineConfig(({ mode }) => ({
     outDir: 'dist',
     target: 'esnext',
     sourcemap: false,
-    minify: false,
+    minify: 'terser',
+    terserOptions: {
+      compress: false,
+      mangle: false,
+      format: { comments: false },
+    },
     cssMinify: false,
     rollupOptions: {
       external: ['maplibre-gl'],
       output: {
-        globals: {
-          'maplibre-gl': 'maplibregl',
-        },
+        globals: { 'maplibre-gl': 'maplibregl' },
       },
     },
   },
