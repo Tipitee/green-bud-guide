@@ -2,6 +2,9 @@
 import React, { useEffect, useRef, useState, useCallback } from "react";
 import { useNavigate } from "react-router-dom";
 import maplibregl from "maplibre-gl";
+
+// Configure worker URL for CDN-loaded maplibre-gl
+maplibregl.workerUrl = "https://cdn.jsdelivr.net/npm/maplibre-gl@5.3.1/dist/maplibre-gl-csp-worker.js";
 import { ClubResult } from "@/types/club";
 import { Capacitor } from "@capacitor/core";
 import { Geolocation } from "@capacitor/geolocation";
