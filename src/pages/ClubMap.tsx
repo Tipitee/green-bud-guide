@@ -7,7 +7,7 @@ import { useTranslation } from "react-i18next";
 import { Search, MapPin, Loader2 } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { useClubsSearch } from "@/hooks/use-clubs-search";
-import { testSupabaseConnection, supabase } from "@/integrations/supabase/client";
+import { supabase } from "@/integrations/supabase/client";
 import ClubMap from "@/components/club/ClubMap";
 import { ClubResult } from "@/types/club";
 import { toast } from "@/hooks/use-toast";
@@ -103,8 +103,8 @@ sessionStorage.setItem(SEARCH_QUERY_STORAGE_KEY, searchQuery);
 // Test Supabase connection
 React.useEffect(() => {
 const checkConnection = async () => {
-const connected = await testSupabaseConnection();
-console.log("[DEBUG] Supabase connection test:", connected);
+const { error } = await supabase.from('strains').select('name').limit(1);
+console.log("[DEBUG] Supabase connection test:", !error);
 };
 checkConnection();
 }, []);
