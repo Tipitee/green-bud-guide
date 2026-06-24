@@ -22,8 +22,8 @@ export const mockClubDetails = {
   ],
   facilities: ["Indoor growing area", "Member lounge", "Educational space", "Laboratory testing"],
   events: [
-    { name: "Cannabis Cultivation Workshop", date: "15.06.2025", description: "Learn about organic growing techniques" },
-    { name: "Medical Cannabis Info Session", date: "28.06.2025", description: "Discussion with medical professionals" },
-    { name: "Members General Meeting", date: "10.07.2025", description: "Quarterly association meeting" }
+    { id: "e1", name: "Cannabis Cultivation Workshop", date: "15.06.2025", description: "Learn about organic growing techniques" },
+    { id: "e2", name: "Medical Cannabis Info Session", date: "28.06.2025", description: "Discussion with medical professionals" },
+    { id: "e3", name: "Members General Meeting", date: "10.07.2025", description: "Quarterly association meeting" }
   ]
 };
