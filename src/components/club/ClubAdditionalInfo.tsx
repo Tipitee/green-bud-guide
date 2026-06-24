@@ -10,7 +10,7 @@ if (!club?.additional_info && !club?.website) return null;
 
 const renderTextWithLinks = (text: string) => {
 if (!text) return null;
-const urlRegex = /(https?://[^s]+)/g;
+const urlRegex = /(https?:\/\/[^\s]+)/g;
 const parts = text.split(urlRegex);
 return parts.map((part, i) => {
 if (part.match(urlRegex)) {
